@@ -108,10 +108,7 @@ func (c *clientCodec) ReadResponseHeader(r *proto.Response) (err error) {
 }
 
 func (c *clientCodec) ReadResponseBody(resp *proto.Response, appResp *proto.AppResponse) *proto.Error {
-	if appResp == nil {
-		return nil
-	}
-	if resp == nil {
+	if resp == nil || appResp == nil {
 		return nil
 	}
 	appResp.Resp = resp
@@ -125,8 +122,6 @@ func (c *clientCodec) ReadResponseBody(resp *proto.Response, appResp *proto.AppR
 					Message: fmt.Sprintf("prase result field failed: %v", err),
 				}
 			}
-		} else {
-			appResp.Result = nil
 		}
 	}
 
@@ -141,20 +136,6 @@ func (c *clientCodec) ReadResponseBody(resp *proto.Response, appResp *proto.AppR
 			}
 		} else {
 			appResp.Params = nil
-		}
-	}
-
-	if appResp.Error != nil {
-		if resp.Error != nil {
-			err := json.Unmarshal(resp.Error, &appResp.Error)
-			if err != nil {
-				return &proto.Error{
-					Code:    proto.ErrRespParseFailed,
-					Message: fmt.Sprintf("prase error field failed: %v", err),
-				}
-			}
-		} else {
-			appResp.Error = nil
 		}
 	}
 	return nil
