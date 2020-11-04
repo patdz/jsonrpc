@@ -23,17 +23,24 @@ type clientCodec struct {
 	mutex   sync.Mutex        // protects pending
 	pending map[uint64]string // map request id to method name
 
-	debug bool
+	debugProtoOutput   func(string)
+	debugProtoIncoming func(string)
 }
 
 // NewClientCodec returns a new rpc.ClientCodec using JSON-RPC on conn.
-func NewClientCodec(conn io.ReadWriteCloser, debug bool) proto.ClientCodec {
+func NewClientCodec(ob *proto.DebugObserver, conn io.ReadWriteCloser) proto.ClientCodec {
+	var debugProtoOutput, debugProtoIncoming func(string)
+	if ob != nil {
+		debugProtoOutput = ob.ProtoOutput
+		debugProtoIncoming = ob.ProtoIncoming
+	}
 	return &clientCodec{
-		dec:     json.NewDecoder(conn),
-		enc:     json.NewEncoder(conn),
-		c:       conn,
-		pending: make(map[uint64]string),
-		debug:   debug,
+		dec:                json.NewDecoder(conn),
+		enc:                json.NewEncoder(conn),
+		c:                  conn,
+		pending:            make(map[uint64]string),
+		debugProtoOutput:   debugProtoOutput,
+		debugProtoIncoming: debugProtoIncoming,
 	}
 }
 
@@ -41,9 +48,9 @@ func (c *clientCodec) WriteRequest(r proto.AppRequest) error {
 	c.mutex.Lock()
 	c.pending[r.Seq()] = r.Method()
 	c.mutex.Unlock()
-	if c.debug {
+	if c.debugProtoOutput != nil {
 		di, _ := json.Marshal(r)
-		fmt.Printf("=> %v\n", string(di))
+		c.debugProtoOutput(string(di))
 	}
 	return c.enc.Encode(r)
 }
@@ -66,9 +73,9 @@ func (c *clientCodec) ReadResponseHeader(r *proto.Response) (err error) {
 		return
 	}
 
-	if c.debug {
+	if c.debugProtoIncoming != nil {
 		di, _ := json.Marshal(&raw)
-		fmt.Printf("<= %v\n", string(di))
+		c.debugProtoIncoming(string(di))
 	}
 
 	mp, ok := raw.(map[string]interface{})

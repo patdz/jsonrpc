@@ -60,3 +60,8 @@ type AppResponse struct {
 	Params interface{}
 	Error  interface{}
 }
+
+type DebugObserver struct {
+	ProtoOutput   func(string)
+	ProtoIncoming func(string)
+}

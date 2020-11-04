@@ -231,10 +231,10 @@ func (client *Client) Call(req proto.AppRequest, reply *proto.AppResponse) *prot
 }
 
 // Dial connects to a JSON-RPC server at the specified network address.
-func Dial(notifyChan *proto.NotificationChan, debug bool, network, address string) (*Client, error) {
+func Dial(notifyChan *proto.NotificationChan, ob *proto.DebugObserver, network, address string) (*Client, error) {
 	conn, err := net.Dial(network, address)
 	if err != nil {
 		return nil, err
 	}
-	return NewClientWithCodec(notifyChan, codec.NewClientCodec(conn, debug)), err
+	return NewClientWithCodec(notifyChan, codec.NewClientCodec(ob, conn)), err
 }

@@ -1,6 +1,7 @@
 package jsonrpc
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -30,7 +31,7 @@ type MiningSubscribe struct {
 }
 
 func TestClient(t *testing.T) {
-	// t.SkipNow()
+	t.SkipNow()
 
 	logrus.SetLevel(logrus.DebugLevel)
 
@@ -38,7 +39,16 @@ func TestClient(t *testing.T) {
 		NewMessageChan: make(chan *proto.Response, 100),
 		ErrorChan:      make(chan *proto.Error, 100),
 	}
-	client, err := Dial(nc, true, "tcp", "X.X.X.X:3333")
+
+	ob := &proto.DebugObserver{
+		ProtoOutput: func(s string) {
+			fmt.Printf("output: %v\n", s)
+		},
+		ProtoIncoming: func(s string) {
+			fmt.Printf("incming: %v\n", s)
+		},
+	}
+	client, err := Dial(nc, ob, "tcp", "X.X.X.X:3333")
 	if err != nil {
 		panic(err)
 	}
