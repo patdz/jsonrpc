@@ -45,3 +45,31 @@ func Interface2JsonBytes(v interface{}) (rv []byte, ok bool) {
 	}
 	return
 }
+
+func Interface2Vector(v interface{}) (rv []interface{}, ok bool) {
+	if v == nil {
+		return
+	}
+	rv, ok = v.([]interface{})
+	return
+}
+
+func Interface2StringVector(v interface{}) (rv []string, ok bool) {
+	if v == nil {
+		return
+	}
+	sv, ok := v.([]interface{})
+	if !ok {
+		return
+	}
+
+	var s string
+	for _, sr := range sv {
+		s, ok = Interface2String(sr)
+		if !ok {
+			return
+		}
+		rv = append(rv, s)
+	}
+	return
+}

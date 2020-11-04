@@ -18,7 +18,7 @@ var ErrShutdown = errors.New("connection is shut down")
 // Call represents an active RPC.
 type Call struct {
 	Request  proto.AppRequest // The argument to the function (*struct).
-	Response proto.Response
+	Response *proto.Response
 	Reply    *proto.AppResponse // The reply from the function (*struct).
 	Error    *proto.Error
 	Done     chan *Call // Receives *Call when Go is complete.
@@ -114,9 +114,11 @@ func (client *Client) input() {
 				}
 			}
 		case response.CheckError != nil:
+			call.Response = response
 			call.Error = response.CheckError
 			call.done()
 		default:
+			call.Response = response
 			call.Error = client.codec.ReadResponseBody(response, call.Reply)
 			call.done()
 		}
@@ -142,6 +144,12 @@ func (client *Client) input() {
 	}
 	client.mutex.Unlock()
 	client.reqMutex.Unlock()
+
+	if client.errorChan != nil {
+		client.errorChan <- &proto.Error{
+			Code: proto.ErrorShutdown,
+		}
+	}
 }
 
 func (call *Call) done() {

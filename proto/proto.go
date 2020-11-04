@@ -55,6 +55,7 @@ type AppRequest interface {
 }
 
 type AppResponse struct {
-	Result *interface{}
-	Params *interface{}
+	Resp   *Response
+	Result interface{}
+	Params interface{}
 }
