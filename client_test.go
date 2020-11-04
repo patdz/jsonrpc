@@ -30,7 +30,7 @@ type MiningSubscribe struct {
 }
 
 func TestClient(t *testing.T) {
-	t.SkipNow()
+	// t.SkipNow()
 
 	logrus.SetLevel(logrus.DebugLevel)
 
@@ -62,16 +62,17 @@ func TestClient(t *testing.T) {
 		},
 	}
 
+	var result []interface{}
 	resp := proto.AppResponse{
-		Result: new(interface{}),
+		Result: &result,
 		Params: new(interface{}),
 	}
 	_ = client.Call(req, &resp)
 
-	if *(resp.Result) != nil {
+	if resp.Result != nil {
 		logrus.Info("Result not nil")
 	}
-	if *(resp.Params) != nil {
+	if resp.Params != nil {
 		logrus.Info("Params not nil")
 	}
 

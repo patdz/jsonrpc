@@ -108,25 +108,53 @@ func (c *clientCodec) ReadResponseHeader(r *proto.Response) (err error) {
 }
 
 func (c *clientCodec) ReadResponseBody(resp *proto.Response, appResp *proto.AppResponse) *proto.Error {
-	if resp == nil || appResp == nil {
+	if appResp == nil {
 		return nil
 	}
-	if resp.Result != nil && appResp.Result != nil {
-		err := json.Unmarshal(resp.Result, &appResp.Result)
-		if err != nil {
-			return &proto.Error{
-				Code:    proto.ErrRespParseFailed,
-				Message: fmt.Sprintf("prase result field failed: %v", err),
+	if resp == nil {
+		return nil
+	}
+	appResp.Resp = resp
+
+	if appResp.Result != nil {
+		if resp.Result != nil {
+			err := json.Unmarshal(resp.Result, &appResp.Result)
+			if err != nil {
+				return &proto.Error{
+					Code:    proto.ErrRespParseFailed,
+					Message: fmt.Sprintf("prase result field failed: %v", err),
+				}
 			}
+		} else {
+			appResp.Result = nil
 		}
 	}
-	if resp.Params != nil && appResp.Params != nil {
-		err := json.Unmarshal(resp.Params, &appResp.Params)
-		if err != nil {
-			return &proto.Error{
-				Code:    proto.ErrRespParseFailed,
-				Message: fmt.Sprintf("prase params field failed: %v", err),
+
+	if appResp.Params != nil {
+		if resp.Params != nil {
+			err := json.Unmarshal(resp.Params, &appResp.Params)
+			if err != nil {
+				return &proto.Error{
+					Code:    proto.ErrRespParseFailed,
+					Message: fmt.Sprintf("prase params field failed: %v", err),
+				}
 			}
+		} else {
+			appResp.Params = nil
+		}
+	}
+
+	if appResp.Error != nil {
+		if resp.Error != nil {
+			err := json.Unmarshal(resp.Error, &appResp.Error)
+			if err != nil {
+				return &proto.Error{
+					Code:    proto.ErrRespParseFailed,
+					Message: fmt.Sprintf("prase error field failed: %v", err),
+				}
+			}
+		} else {
+			appResp.Error = nil
 		}
 	}
 	return nil
