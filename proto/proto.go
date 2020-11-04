@@ -54,6 +54,22 @@ type AppRequest interface {
 	Method() string
 }
 
+type AppRequestBase struct {
+	SeqNumber    uint64 `json:"id"`
+	ServerMethod string `json:"method"`
+}
+
+func (r *AppRequestBase) SetSeq(seq uint64) {
+	r.SeqNumber = seq
+}
+func (r *AppRequestBase) Seq() uint64 {
+	return r.SeqNumber
+}
+
+func (r *AppRequestBase) Method() string {
+	return r.ServerMethod
+}
+
 type AppResponse struct {
 	Resp   *Response
 	Result interface{}

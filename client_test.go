@@ -9,25 +9,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type AppRequestBase struct {
-	SeqNumber1   uint64        `json:"id"`
-	ServerMethod string        `json:"method"`
-	Params       []interface{} `json:"params"`
-}
-
-func (r *AppRequestBase) SetSeq(seq uint64) {
-	r.SeqNumber1 = seq
-}
-func (r *AppRequestBase) Seq() uint64 {
-	return r.SeqNumber1
-}
-
-func (r *AppRequestBase) Method() string {
-	return r.ServerMethod
-}
-
 type MiningSubscribe struct {
-	AppRequestBase
+	proto.AppRequestBase
+	Params []interface{} `json:"params"`
 }
 
 func TestClient(t *testing.T) {
@@ -66,10 +50,10 @@ func TestClient(t *testing.T) {
 	}()
 
 	req := &MiningSubscribe{
-		AppRequestBase: AppRequestBase{
+		AppRequestBase: proto.AppRequestBase{
 			ServerMethod: "mining.subscribe",
-			Params:       []interface{}{},
 		},
+		Params: []interface{}{},
 	}
 
 	var result []interface{}
