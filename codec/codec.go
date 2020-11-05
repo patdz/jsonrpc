@@ -91,7 +91,7 @@ func (c *clientCodec) ReadResponseHeader(r *proto.Response) (err error) {
 	r.Resp = mp
 
 	if r.ID == 0 {
-		if r.Method == "" {
+		if r.Method == "" && r.Error == nil && r.Params == nil && r.Result == nil {
 			r.CheckError = &proto.Error{
 				Code:    proto.ErrorCodeInvalidResponse,
 				Message: "method is nil",
