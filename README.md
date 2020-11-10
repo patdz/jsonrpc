@@ -10,3 +10,5 @@ JSON RPC Core
 * [x] 自定义消息字段
 * [x] 服务端主动发送的消息处理
 * [ ] ut
+* [x] ft for `jsonrpc 1.0`
+* [x] ft for `jsonrpc 2.0`
